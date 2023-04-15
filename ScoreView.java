@@ -1,4 +1,4 @@
-package com.mycompany.a1;
+package com.mycompany.a3;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -7,12 +7,18 @@ import com.codename1.ui.Container;
 import com.codename1.ui.Label;
 
 public class ScoreView extends Container implements Observer{
-
+	private Label timeLabel;
+	private Label lifeLabel;
+	private Label flagLabel;
+	private Label foodLabel;
+	private Label healthLabel;
+	private Label soundLabel;
+	
+	
 	public ScoreView(GameWorld gw) {
 		gw.addObserver(this);
-		//add labels here
-		Label timeLabel=new Label("Time: "+gw.getClockTime());
-		Label lifeLabel=new Label("Lives Left: "+gw.getLives());
+		this.timeLabel=new Label("Time: "+gw.getClockTime());
+		this.lifeLabel=new Label("Lives Left: "+gw.getLives());
 		
 		//iterator to get ant information
 		IIterator theElements=gw.getGameCollection().getIterator();
@@ -27,10 +33,10 @@ public class ScoreView extends Container implements Observer{
 				health=((Ant) go).getHealthLevel();
 			}
 		}
-		Label flagLabel=new Label("Last Flag Reached "+lastFlag);
-		Label foodLabel=new Label("Food Level: "+food);
-		Label healthLabel=new Label("Health Level: "+health);
-		Label soundLabel=new Label("Sound: "+gw.getSound());
+		this.flagLabel=new Label("Last Flag Reached "+lastFlag);
+		this.foodLabel=new Label("Food Level: "+food);
+		this.healthLabel=new Label("Health Level: "+health);
+		this.soundLabel=new Label("Sound: "+gw.getSound());
 		
 		this.add(timeLabel);
 		this.add(lifeLabel);
@@ -46,7 +52,25 @@ public class ScoreView extends Container implements Observer{
 	
 	@Override
 	public void update(Observable observable, Object data) {
-		//update labels from the game/ant state data
+		this.timeLabel.setText("Time: "+((GameWorld) observable).getClockTime());
+		this.lifeLabel.setText("Lives Left: "+ ((GameWorld) observable).getLives());
+		IIterator theElements=((GameWorld) observable).getGameCollection().getIterator();
+		int lastFlag=0;
+		int food=0;
+		int health=0;
+		while (theElements.hasNext()) {
+			GameObject go=theElements.getNext();
+			if(go instanceof Ant) {
+				lastFlag=((Ant) go).getLastFlagReached();
+				food=((Ant) go).getFoodLevel();
+				health=((Ant) go).getHealthLevel();
+			}
+		}
+		
+		this.flagLabel.setText("Last Flag Reached: "+lastFlag);
+		this.foodLabel.setText("Food Level: "+ food);
+		this.healthLabel.setText("Health Level: "+ health);
+		this.soundLabel.setText("Sound: "+((GameWorld) observable).getSound());
 		
 	}
 	

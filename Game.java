@@ -1,12 +1,14 @@
-package com.mycompany.a1;
+package com.mycompany.a3;
 import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.FlowLayout;
 import com.codename1.ui.layouts.GridLayout;
 import com.codename1.ui.plaf.Border;
+import com.codename1.charts.models.Point;
 import com.codename1.charts.util.ColorUtil;
 import com.codename1.ui.Button;
+import com.codename1.ui.CheckBox;
 import com.codename1.ui.Command;
 import com.codename1.ui.Component;
 import com.codename1.ui.Container;
@@ -29,7 +31,6 @@ public class Game extends Form{
 		this.setLayout(new BorderLayout());
 		
 		gw=new GameWorld();
-		gw.init();
 		
 		//register observers
 		mv=new MapView(gw);
@@ -58,9 +59,14 @@ public class Game extends Form{
 		setToolbar(myToolbar);
 		myToolbar.setTitle("StartToFinish Game");
 		myToolbar.addCommandToRightBar(helpCmd);
+		
+		//side menu stuff
+		myToolbar.addCommandToSideMenu(accelerateCmd);
 		myToolbar.addCommandToSideMenu(aboutCmd);
-		myToolbar.addCommandToSideMenu(soundCmd);
 		myToolbar.addCommandToSideMenu(exitCmd);
+		CheckBox soundCheckBox=new CheckBox("Sound");
+		soundCheckBox.setCommand(soundCmd);
+		myToolbar.addComponentToSideMenu(soundCheckBox);
 		
 		//center stuff
 		mv.getAllStyles().setBorder(Border.createLineBorder(2, ColorUtil.rgb(255, 0, 0)));
@@ -124,15 +130,14 @@ public class Game extends Form{
 		this.addKeyListener('f', foodCmd);
 		this.addKeyListener('g', getCmd);
 		this.addKeyListener('t', tickCmd);
-		//for testing purposes, remove for final submission
 		this.addKeyListener('m', mapCmd);
-		
-		
-		//add commands to side menu and title bar here
-		
+
 		
 		this.show();
-		//code here to query MapViews width and height and set them as worlds width and height
+		gw.setHeight(mv.getHeight());
+		gw.setWidth(mv.getWidth());
+		gw.setOrigin(new Point (mv.getX(),mv.getY()));
+		gw.init();
 		
 		
 

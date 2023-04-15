@@ -1,7 +1,8 @@
-package com.mycompany.a1;
+package com.mycompany.a3;
 
 import com.codename1.charts.models.Point;
 import com.codename1.charts.util.ColorUtil;
+import com.codename1.ui.Graphics;
 
 public class Ant extends Movable implements ISteerable{
 	private int maxSpeed;
@@ -11,8 +12,8 @@ public class Ant extends Movable implements ISteerable{
 	private int lastFlagReached;
 	private static Ant isAnt;
 	
-	private Ant(int size, Point location, int color) {
-		super(size, location, color);
+	private Ant(int size, Point location, int color, int mapHeight, int mapWidth) {
+		super(size, location, color, mapHeight, mapWidth);
 		this.maxSpeed=50;
 		this.foodLevel=10;
 		this.foodConsumtionRate=1;
@@ -21,10 +22,11 @@ public class Ant extends Movable implements ISteerable{
 	}
 	
 	//singleton solution
-	public static Ant getAnt() {
+	public static Ant getAnt(int mapHeight, int mapWidth) {
 		if (isAnt==null) {
 			//hard coded initial location to flag 1
-			isAnt=new Ant(5, new Point(1,1), ColorUtil.GREEN);
+			
+			isAnt=new Ant(25, new Point(200,200), ColorUtil.GREEN, mapHeight, mapWidth);
 		}
 		return isAnt;
 	}
@@ -84,5 +86,14 @@ public class Ant extends Movable implements ISteerable{
 		this.lastFlagReached=1;
 		this.setLocation(new Point(1,1));
 		this.setColor(ColorUtil.GREEN);
+	}
+
+	@Override
+	public void draw(Graphics g, Point pCmpRelPrnt) {
+		int radius=this.getSize()/2;
+		g.fillArc( (int) this.getLocation().getX()-radius, (int) this.getLocation().getY()-radius, 2*radius, 2*radius, 0, 360);
+		g.setColor(this.getColor());
+		
+		
 	}
 }

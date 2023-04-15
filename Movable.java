@@ -1,19 +1,21 @@
-package com.mycompany.a1;
+package com.mycompany.a3;
 import com.codename1.charts.models.Point;
 
 public abstract class Movable extends GameObject{
-	
-	public Movable(int size, Point location, int color) {
-		super(size, location, color);
-		heading=0;
-		speed=10;
-	}
-
 	private int heading;
 	private int speed;
+	private int mapWidth;
+	private int mapHeight;
 	
 	
-	
+	public Movable(int size, Point location, int color, int mapHeight, int mapWidth) {
+		super(size, location, color);
+		this.heading=0;
+		this.speed=50;
+		this.mapHeight=mapHeight;
+		this.mapWidth=mapWidth;
+	}
+
 	public int getHeading() {
 		return heading;
 	}
@@ -45,17 +47,12 @@ public abstract class Movable extends GameObject{
 		float newX=(float) (this.getLocation().getX()+deltaX);
 		float newY=(float) (this.getLocation().getY()+deltaY);
 		
-		/*double deltaX=Math.cos(Math.toRadians(90-heading)*this.getSpeed());
-		double deltaY=Math.sin(Math.toRadians(90-heading)*this.getSpeed());
-		float newX=(float) (this.getLocation().getX()+deltaX);
-		float newY=(float) (this.getLocation().getY()+deltaY);*/
-		
 		//edge of map handling
-		if (newX>999) {
-			newX=999;
+		if (newX>this.mapWidth-1) {
+			newX=this.mapWidth-1;
 		}
-		if(newY>999) {
-			newY=999;
+		if(newY>this.mapHeight-1) {
+			newY=this.mapHeight-1;
 		}
 		if(newX<0) {
 			newX=0;
@@ -65,7 +62,7 @@ public abstract class Movable extends GameObject{
 		}
 		
 		//if edge of map, turn around
-		if(newX==0 || newX==999 || newY==0 || newY==999) {
+		if(newX==0 || newX==this.mapWidth-1 || newY==0 || newY==this.mapHeight-1) {
 			this.heading=this.heading+180;
 		}
 		

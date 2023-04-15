@@ -1,4 +1,4 @@
-package com.mycompany.a1;
+package com.mycompany.a3;
 
 import com.codename1.charts.models.Point;
 

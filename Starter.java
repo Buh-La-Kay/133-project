@@ -2,7 +2,7 @@
 		figure out how game world works
 		random location instantiation
 */
-package com.mycompany.a1;
+package com.mycompany.a3;
 
 
 import static com.codename1.ui.CN.*;

@@ -1,4 +1,4 @@
-package com.mycompany.a1;
+package com.mycompany.a3;
 
 import java.util.ArrayList;
 import java.util.Observable;
@@ -7,6 +7,7 @@ import java.util.Random;
 import com.codename1.charts.models.Point;
 import com.codename1.charts.util.ColorUtil;
 import com.codename1.ui.Dialog;
+import com.codename1.ui.Display;
 
 
 
@@ -17,9 +18,12 @@ public class GameWorld extends Observable{
 	private int lives;
 	private int clockTime;
 	private boolean soundOn;
+	private int height;
+	private int width;
+	private Point origin;
 	
 	public GameWorld() {
-		this.numSpiders=2;
+		this.numSpiders=1;
 		this.numFoodStations=2;
 		this.lives=3;
 		this.clockTime=0;
@@ -28,34 +32,34 @@ public class GameWorld extends Observable{
 	}
 	
 	public void init() {
-		//hard coded first 4 flags and ant
+
 		int flagCount=0;
-		//change these values to be based on gameworld size
-		gameCollection.add(new Flag(10, new Point(1,1), ColorUtil.BLUE, ++flagCount));
-		gameCollection.add(new Flag(10, new Point(200,500), ColorUtil.BLUE, ++flagCount));
-		gameCollection.add(new Flag(10, new Point(600,500), ColorUtil.BLUE, ++flagCount));
-		gameCollection.add(new Flag(10, new Point(600,200), ColorUtil.BLUE, ++flagCount));
+
+		gameCollection.add(Ant.getAnt(this.height,this.width));
 		
-		gameCollection.add(Ant.getAnt());
+		gameCollection.add(new Flag(40, new Point(this.origin.getX()+this.getWidth()/4, this.origin.getY()+this.height/4), ColorUtil.BLUE, ++flagCount));
+		gameCollection.add(new Flag(40, new Point(this.origin.getX()+this.getWidth()*3/4, this.origin.getY()+this.height/4), ColorUtil.BLUE, ++flagCount));
+		gameCollection.add(new Flag(40, new Point(this.origin.getX()+this.getWidth()/4, this.origin.getY()+this.height*3/4), ColorUtil.BLUE, ++flagCount));
+		gameCollection.add(new Flag(40, new Point(this.origin.getX()+this.getWidth()*3/4, this.origin.getY()+this.height*3/4), ColorUtil.BLUE, ++flagCount));
 		
+
 		
+		gameCollection.add(new Spider(30, randLocation(), ColorUtil.BLACK, this.width, this.height));
+		gameCollection.add(new Spider(30, randLocation(), ColorUtil.BLACK, this.width, this.height));
 		
-		for (int i=0; i<numSpiders; i++) {
-			gameCollection.add(new Spider(5, randLocation(), ColorUtil.BLACK));
-		}
-		
-		for (int i=0; i<numFoodStations; i++) {
-			gameCollection.add(new FoodStation(randFoodSize(), randLocation(), ColorUtil.GRAY));
+		gameCollection.add(new FoodStation(randFoodSize(), randLocation(), ColorUtil.GRAY));
+		gameCollection.add(new FoodStation(randFoodSize(), randLocation(), ColorUtil.GRAY));
+
 			
-		}
-		
+		this.setChanged();
+		this.notifyObservers();
 	}
 	
 	//rand helper functions
 	public Point randLocation() {
 		Random random=new Random();
-		float floatX=(float)(random.nextInt(1000));
-		float floatY=(float)(random.nextInt(1000));
+		float floatX=(float)(random.nextInt(this.width));
+		float floatY=(float)(random.nextInt(this.height));
 		return new Point(floatX, floatY);
 	}
 	
@@ -102,21 +106,22 @@ public class GameWorld extends Observable{
 					lives--;
 					//resets ant stuff to starting levels
 					((Ant) go).reset();
-					System.out.println("You Died");
-					if(lives==0) {
-						System.out.println("Game Over");
-						System.exit(0);
-					}
-					else {
-						System.out.println("You have "+lives+" lives remaining. Use them wisely, the Queen is depending on you.");
+					if(lives>0) {
+						Dialog.show("You Died", "You have "+lives+" lives remaining. Use them wisely, the Queen is depending on you.", "Ok", null);
 						gameCollection.clear();
 						init();
 					}
-					
+					else{
+						Dialog.show("Game Over", "You Lose", "Ok", null);
+						Display.getInstance().exitApplication();
+					}
 				}
 			}
 		}
+		//check for collisions here?
 		clockTime++;
+		this.setChanged();
+		this.notifyObservers();
 	}
 
 	public void display() {
@@ -145,6 +150,8 @@ public class GameWorld extends Observable{
 				}
 			}
 		}
+		this.setChanged();
+		this.notifyObservers();
 	}
 	
 	public void brake() {
@@ -160,6 +167,8 @@ public class GameWorld extends Observable{
 				}
 			}
 		}
+		this.setChanged();
+		this.notifyObservers();
 	}
 	
 	public void left() {
@@ -170,6 +179,8 @@ public class GameWorld extends Observable{
 				((Movable) go).setHeading(((Movable) go).getHeading()-5);
 			}
 		}
+		this.setChanged();
+		this.notifyObservers();
 	}
 	
 	public void right() {
@@ -180,23 +191,28 @@ public class GameWorld extends Observable{
 				((Movable) go).setHeading(((Movable) go).getHeading()+5);
 			}
 		}
+		this.setChanged();
+		this.notifyObservers();
 	}
 	
-	//need to change implementation to user selecting
 	public void food() {
 		IIterator theElements=gameCollection.getIterator();
+		IIterator theOtherElements=gameCollection.getIterator();
 		while (theElements.hasNext()){
 			GameObject go=theElements.getNext();
-			/*if(go instanceof Ant) {
-				for(int j=0; j<gameList.size(); j++) {
-					if(gameList.get(j) instanceof FoodStation && ((FoodStation) gameList.get(j)).getCapacity()>0) {
-						((Ant) gameList.get(i)).setFoodLevel(((Ant) gameList.get(i)).getFoodLevel()+((FoodStation) gameList.get(j)).getCapacity());
-						((FoodStation) gameList.get(j)).setCapacity(0);
+			if(go instanceof Ant) {
+				while(theOtherElements.hasNext()) {
+					GameObject go2=theOtherElements.getNext();
+					if(go2 instanceof FoodStation && ((FoodStation) go2).getCapacity()>0) {
+						((Ant) go).setFoodLevel(((Ant) go).getFoodLevel()+((FoodStation) go2).getCapacity());
+						((FoodStation) go2).setCapacity(0);
 						break;
 					}
 				}
-			}*/
+			}
 		}
+		this.setChanged();
+		this.notifyObservers();
 	}
 	
 	public void get() {
@@ -207,30 +223,29 @@ public class GameWorld extends Observable{
 				((Ant) go).setHealthLevel(((Ant) go).getHealthLevel()-1);
 				//casting to int might cause problems
 				((Movable) go).setSpeed((int) (((Movable) go).getSpeed()-(((Movable) go).getSpeed()*.1)));
-				if(((Ant) go).getHealthLevel()<=4) {
-					((GameObject) go).setColor(ColorUtil.MAGENTA);
-				}
-				else if(((Ant) go).getHealthLevel()<=7) {
-					((GameObject) go).setColor(ColorUtil.YELLOW);
-				}
+				go.setColor(go.getColor()-15);
 			}
 		}
+		this.setChanged();
+		this.notifyObservers();
 	}
 	
 	public void flagCollision(int flagNum) {
-		//use static method Dialogue.show() to create a dialogue box that allows
-		//the user to enter the number on a text field located on the dialogue box
-		//("titled form in CN1" slide of Gui basics chapter in lecutre notes
-		//handle invalid inputs
 		IIterator theElements=gameCollection.getIterator();
 		while (theElements.hasNext()){
 			GameObject go=theElements.getNext();
 			if(go instanceof Ant) {
 				if(flagNum-1==((Ant) go).getLastFlagReached()) {
 					((Ant) go).setLastFlagReached(flagNum);
+					if(((Ant) go).getLastFlagReached()==4) {
+						Dialog.show("Winner!", "Game Over, You Win! Total Time: "+this.getClockTime(), "Ok", null);
+						Display.getInstance().exitApplication();
+					}
 				}
 			}
 		}
+		this.setChanged();
+		this.notifyObservers();
 	}
 	
 	public void toggleSound() {
@@ -240,20 +255,18 @@ public class GameWorld extends Observable{
 		else {
 			this.soundOn=true;
 		}
-	}
-	
-	public void exit() {
-		
+		this.setChanged();
+		this.notifyObservers();
 	}
 	
 	public void about() {
 		String output="Start to Finish\nCreated by Blake Danz for CSC 133\nVersion 2.0";
-		Dialog.show("About", output);
+		Dialog.show("About", output, "Ok", null);
 	}
 	
 	public void help() {
-		String output="Here is a list of the available keybinds and the actions they perform:\n'a': Accelerate your ant\n'b': Brake, slow down your ant\n'l': Turn ant 5 degrees to the left\n'r': Turn ant 5 degrees to the right\n'f': Collide with a given flag number\n't': Tick, progresses the game by 1 second";
-		Dialog.show("Help", output);
+		String output="Here is a list of the available keybinds:\n'a': Accelerate your ant\n'b': Brake, slow down your ant\n'l': Turn ant 5 degrees to the left\n'r': Turn ant 5 degrees to the right\n'f': Collide with a given flag number\n't': Tick, progresses the game by 1 second";
+		Dialog.show("Help", output, "Ok", null);
 	}
 	
 	
@@ -282,7 +295,31 @@ public class GameWorld extends Observable{
 		}
 	}
 	
+	public int getHeight() {
+		return this.height;
+	}
+	
+	public void setHeight(int height) {
+		this.height=height;
+	}
+	
+	public int getWidth() {
+		return this.width;
+	}
+	
+	public void setWidth(int width) {
+		this.width=width;
+	}
+	
 	public GameCollection getGameCollection() {
 		return this.gameCollection;
+	}
+
+	public Point getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(Point point) {
+		this.origin = point;
 	}
 }

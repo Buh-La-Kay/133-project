@@ -1,8 +1,8 @@
-package com.mycompany.a1;
+package com.mycompany.a3;
 import com.codename1.charts.models.Point;
 import com.codename1.charts.util.ColorUtil;
 
-public abstract class GameObject {
+public abstract class GameObject implements IDrawable{
 	private int size;
 	private Point location;
 	private int color;
@@ -15,10 +15,6 @@ public abstract class GameObject {
 	
 	public int getSize() {
 		return size;
-	}
-	
-	private void setSize(int size) {
-		this.size = size;
 	}
 	
 	public Point getLocation() {
