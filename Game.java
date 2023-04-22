@@ -5,6 +5,7 @@ import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.FlowLayout;
 import com.codename1.ui.layouts.GridLayout;
 import com.codename1.ui.plaf.Border;
+import com.codename1.ui.util.UITimer;
 import com.codename1.charts.models.Point;
 import com.codename1.charts.util.ColorUtil;
 import com.codename1.ui.Button;
@@ -21,7 +22,7 @@ import java.lang.String;
 
 
 
-public class Game extends Form{
+public class Game extends Form implements Runnable{
 	private GameWorld gw;
 	private MapView mv;
 	private ScoreView sv;
@@ -29,7 +30,6 @@ public class Game extends Form{
 	
 	public Game() {
 		this.setLayout(new BorderLayout());
-		
 		gw=new GameWorld();
 		
 		//register observers
@@ -37,6 +37,7 @@ public class Game extends Form{
 		sv= new ScoreView(gw);
 		gw.addObserver(mv);
 		gw.addObserver(sv);
+		
 		
 		//commands
 		AboutCommand aboutCmd=new AboutCommand(gw);
@@ -54,11 +55,13 @@ public class Game extends Form{
 		SoundCommand soundCmd=new SoundCommand(gw);
 		TickCommand tickCmd=new TickCommand(gw);
 		
+		
 		//title stuff
 		Toolbar myToolbar=new Toolbar();
 		setToolbar(myToolbar);
 		myToolbar.setTitle("StartToFinish Game");
 		myToolbar.addCommandToRightBar(helpCmd);
+		
 		
 		//side menu stuff
 		myToolbar.addCommandToSideMenu(accelerateCmd);
@@ -67,6 +70,7 @@ public class Game extends Form{
 		CheckBox soundCheckBox=new CheckBox("Sound");
 		soundCheckBox.setCommand(soundCmd);
 		myToolbar.addComponentToSideMenu(soundCheckBox);
+		
 		
 		//center stuff
 		mv.getAllStyles().setBorder(Border.createLineBorder(2, ColorUtil.rgb(255, 0, 0)));
@@ -91,6 +95,7 @@ public class Game extends Form{
 		leftContainer.add(leftButton);
 		this.add(BorderLayout.WEST, leftContainer);
 		
+		
 		//right stuff 
 		Container rightContainer=new Container();
 		rightContainer.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
@@ -103,6 +108,7 @@ public class Game extends Form{
 		rightContainer.add(brakeButton);
 		rightContainer.add(rightButton);
 		this.add(BorderLayout.EAST, rightContainer);
+		
 		
 		//south stuff
 		Container southContainer=new Container();
@@ -121,7 +127,6 @@ public class Game extends Form{
 		this.add(BorderLayout.SOUTH, southContainer);
 		
 		
-		
 		//keybinds
 		this.addKeyListener('a', accelerateCmd);
 		this.addKeyListener('b', brakeCmd);
@@ -132,6 +137,11 @@ public class Game extends Form{
 		this.addKeyListener('t', tickCmd);
 		this.addKeyListener('m', mapCmd);
 
+		
+		//timer stuff
+		UITimer timer=new UITimer(this);
+		timer.schedule(20, true, this);
+		
 		
 		this.show();
 		gw.setHeight(mv.getHeight());
@@ -145,6 +155,13 @@ public class Game extends Form{
 
 		
 		
+		
+	}
+
+
+	@Override
+	public void run() {
+		gw.tick();
 		
 	}
 }

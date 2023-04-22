@@ -11,9 +11,10 @@ public abstract class Movable extends GameObject{
 	public Movable(int size, Point location, int color, int mapHeight, int mapWidth) {
 		super(size, location, color);
 		this.heading=0;
-		this.speed=50;
+		this.speed=100;
 		this.mapHeight=mapHeight;
 		this.mapWidth=mapWidth;
+
 	}
 
 	public int getHeading() {
@@ -39,35 +40,37 @@ public abstract class Movable extends GameObject{
 		return (super.toString()+" heading="+this.heading+" speed="+this.speed);
 	}
 	
-	public void move() {
+	public void move(Point origin, int elapsedTime) {
 		double theta=Math.toRadians(90-this.heading);
-		double deltaX=Math.cos(theta)*this.speed;
-		double deltaY=Math.sin(theta)*this.speed;
+		
+		double dist=this.speed*elapsedTime/1000;
+		
+		double deltaX=Math.cos(theta)*dist;
+		double deltaY=Math.sin(theta)*dist;
 		
 		float newX=(float) (this.getLocation().getX()+deltaX);
 		float newY=(float) (this.getLocation().getY()+deltaY);
 		
 		//edge of map handling
-		if (newX>this.mapWidth-1) {
-			newX=this.mapWidth-1;
+		if (newX>this.mapWidth-1+origin.getX()) {
+			newX=this.mapWidth-1+origin.getX();
 		}
-		if(newY>this.mapHeight-1) {
-			newY=this.mapHeight-1;
+		if(newY>this.mapHeight-1+origin.getY()) {
+			newY=this.mapHeight-1+origin.getY();
 		}
-		if(newX<0) {
-			newX=0;
+		if(newX<origin.getX()) {
+			newX=origin.getX();
 		}
-		if(newY<0) {
-			newY=0;
+		if(newY<origin.getY()) {
+			newY=origin.getY();
 		}
 		
 		//if edge of map, turn around
-		if(newX==0 || newX==this.mapWidth-1 || newY==0 || newY==this.mapHeight-1) {
+		if(newX==origin.getX() || newX==this.mapWidth-1+origin.getX() || newY==origin.getY() || newY==this.mapHeight-1+origin.getY()) {
 			this.heading=this.heading+180;
 		}
 		
 		Point newPoint=new Point(newX, newY);
 		this.setLocation(newPoint);
-		//TODO add checks for edge of map
 	}
 }

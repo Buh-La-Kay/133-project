@@ -34,10 +34,15 @@ public class Spider extends Movable{
 		//bot right point
 		xPoints[2]=(int) this.getLocation().getX()+this.getSize()/2;
 		yPoints[2]=(int) this.getLocation().getY()-this.getSize()/2;
-		
-		g.drawPolygon(xPoints, yPoints, 3);
 		g.setColor(this.getColor());
-		System.out.println(this.getColor());
+		g.drawPolygon(xPoints, yPoints, 3);
+		
+		
+	}
+
+	@Override
+	public void handleCollision(GameObject otherObject, GameWorld gw) {
+		// TODO Auto-generated method stub
 		
 	}
 }

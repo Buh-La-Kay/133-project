@@ -46,9 +46,15 @@ public class Flag extends Fixed{
 		//bot right point
 		xPoints[2]=(int) (this.getLocation().getX())+this.getSize()/2;
 		yPoints[2]=(int) (this.getLocation().getY())-this.getSize()/2;
-		
-		g.fillPolygon(xPoints, yPoints, 3);
 		g.setColor(this.getColor());
+		g.fillPolygon(xPoints, yPoints, 3);
+		g.setColor(ColorUtil.BLACK);
 		g.drawString(Integer.toString(this.sequenceNumber), (int) (this.getLocation().getX()), (int) (this.getLocation().getY()));
+	}
+
+	@Override
+	public void handleCollision(GameObject otherObject, GameWorld gw) {
+		// TODO Auto-generated method stub
+		
 	}
 }

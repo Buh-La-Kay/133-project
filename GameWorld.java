@@ -35,20 +35,20 @@ public class GameWorld extends Observable{
 
 		int flagCount=0;
 
-		gameCollection.add(Ant.getAnt(this.height,this.width));
+		gameCollection.add(Ant.getAnt(this.height,this.width, new Point(this.origin.getX()+this.getWidth()/4, this.origin.getY()+this.height/4)));
 		
-		gameCollection.add(new Flag(40, new Point(this.origin.getX()+this.getWidth()/4, this.origin.getY()+this.height/4), ColorUtil.BLUE, ++flagCount));
-		gameCollection.add(new Flag(40, new Point(this.origin.getX()+this.getWidth()*3/4, this.origin.getY()+this.height/4), ColorUtil.BLUE, ++flagCount));
-		gameCollection.add(new Flag(40, new Point(this.origin.getX()+this.getWidth()/4, this.origin.getY()+this.height*3/4), ColorUtil.BLUE, ++flagCount));
-		gameCollection.add(new Flag(40, new Point(this.origin.getX()+this.getWidth()*3/4, this.origin.getY()+this.height*3/4), ColorUtil.BLUE, ++flagCount));
+		gameCollection.add(new Flag(50, new Point(this.origin.getX()+this.getWidth()/4, this.origin.getY()+this.height/4), ColorUtil.BLUE, ++flagCount));
+		gameCollection.add(new Flag(50, new Point(this.origin.getX()+this.getWidth()*3/4, this.origin.getY()+this.height/4), ColorUtil.BLUE, ++flagCount));
+		gameCollection.add(new Flag(50, new Point(this.origin.getX()+this.getWidth()/4, this.origin.getY()+this.height*3/4), ColorUtil.BLUE, ++flagCount));
+		gameCollection.add(new Flag(50, new Point(this.origin.getX()+this.getWidth()*3/4, this.origin.getY()+this.height*3/4), ColorUtil.BLUE, ++flagCount));
 		
 
 		
-		gameCollection.add(new Spider(30, randLocation(), ColorUtil.BLACK, this.width, this.height));
-		gameCollection.add(new Spider(30, randLocation(), ColorUtil.BLACK, this.width, this.height));
+		gameCollection.add(new Spider(50, randLocation(origin), ColorUtil.BLACK, this.height, this.width));
+		gameCollection.add(new Spider(50, randLocation(origin), ColorUtil.BLACK, this.height, this.width));
 		
-		gameCollection.add(new FoodStation(randFoodSize(), randLocation(), ColorUtil.GRAY));
-		gameCollection.add(new FoodStation(randFoodSize(), randLocation(), ColorUtil.GRAY));
+		gameCollection.add(new FoodStation(randFoodSize(), randLocation(origin), ColorUtil.GRAY));
+		gameCollection.add(new FoodStation(randFoodSize(), randLocation(origin), ColorUtil.GRAY));
 
 			
 		this.setChanged();
@@ -56,16 +56,16 @@ public class GameWorld extends Observable{
 	}
 	
 	//rand helper functions
-	public Point randLocation() {
+	public Point randLocation(Point origin) {
 		Random random=new Random();
 		float floatX=(float)(random.nextInt(this.width));
 		float floatY=(float)(random.nextInt(this.height));
-		return new Point(floatX, floatY);
+		return new Point(floatX+origin.getX(), floatY);
 	}
 	
 	public int randFoodSize(){
 		Random random=new Random();
-		int size=random.nextInt(41)+10;
+		int size=random.nextInt(50)+50;
 		return size;
 	}
 	
@@ -97,7 +97,7 @@ public class GameWorld extends Observable{
 			}
 			
 			if(go instanceof Movable) {
-				((Movable) go).move();
+				((Movable) go).move(origin, 20);
 			}
 			
 			if(go instanceof Ant) {
@@ -118,7 +118,21 @@ public class GameWorld extends Observable{
 				}
 			}
 		}
-		//check for collisions here?
+		IIterator iter=gameCollection.getIterator();
+		while (iter.hasNext()) {
+			ICollider curObject=(ICollider)iter.getNext();
+			IIterator iter2=gameCollection.getIterator();
+			while(iter2.hasNext()) {
+				ICollider otherObject=(ICollider)iter2.getNext();
+				if(otherObject!=curObject) {
+					if(curObject.collidesWith((GameObject) otherObject)) {
+						curObject.handleCollision((GameObject) otherObject, this);
+					}
+				}
+			}
+		}
+		//check for collisions here
+		
 		clockTime++;
 		this.setChanged();
 		this.notifyObservers();
@@ -176,7 +190,7 @@ public class GameWorld extends Observable{
 		while (theElements.hasNext()){
 			GameObject go=theElements.getNext();
 			if(go instanceof Ant) {
-				((Movable) go).setHeading(((Movable) go).getHeading()-5);
+				((Movable) go).setHeading(((Movable) go).getHeading()-20);
 			}
 		}
 		this.setChanged();
@@ -188,7 +202,7 @@ public class GameWorld extends Observable{
 		while (theElements.hasNext()){
 			GameObject go=theElements.getNext();
 			if(go instanceof Ant) {
-				((Movable) go).setHeading(((Movable) go).getHeading()+5);
+				((Movable) go).setHeading(((Movable) go).getHeading()+20);
 			}
 		}
 		this.setChanged();

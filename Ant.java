@@ -11,22 +11,24 @@ public class Ant extends Movable implements ISteerable{
 	private int healthLevel;
 	private int lastFlagReached;
 	private static Ant isAnt;
+	private Point startingLocation;
 	
-	private Ant(int size, Point location, int color, int mapHeight, int mapWidth) {
+	private Ant(int size, Point location, int color, int mapHeight, int mapWidth, Point startingLocation) {
 		super(size, location, color, mapHeight, mapWidth);
-		this.maxSpeed=50;
-		this.foodLevel=10;
+		this.maxSpeed=100;
+		this.foodLevel=500;
 		this.foodConsumtionRate=1;
 		this.healthLevel=10;
 		this.lastFlagReached=1; 
+		this.startingLocation=startingLocation;
 	}
 	
 	//singleton solution
-	public static Ant getAnt(int mapHeight, int mapWidth) {
+	public static Ant getAnt(int mapHeight, int mapWidth, Point flag1) {
 		if (isAnt==null) {
 			//hard coded initial location to flag 1
 			
-			isAnt=new Ant(25, new Point(200,200), ColorUtil.GREEN, mapHeight, mapWidth);
+			isAnt=new Ant(50, flag1, ColorUtil.GREEN, mapHeight, mapWidth, flag1);
 		}
 		return isAnt;
 	}
@@ -80,20 +82,33 @@ public class Ant extends Movable implements ISteerable{
 	}
 	
 	public void reset() {
-		this.maxSpeed=50;
-		this.foodLevel=10;
+		this.maxSpeed=100;
+		this.foodLevel=500;
 		this.healthLevel=10;
 		this.lastFlagReached=1;
-		this.setLocation(new Point(1,1));
+		this.setLocation(startingLocation);
 		this.setColor(ColorUtil.GREEN);
 	}
 
 	@Override
 	public void draw(Graphics g, Point pCmpRelPrnt) {
 		int radius=this.getSize()/2;
-		g.fillArc( (int) this.getLocation().getX()-radius, (int) this.getLocation().getY()-radius, 2*radius, 2*radius, 0, 360);
 		g.setColor(this.getColor());
+		g.fillArc( (int) this.getLocation().getX()-radius, (int) this.getLocation().getY()-radius, 2*radius, 2*radius, 0, 360);
 		
-		
+	}
+	
+
+	public void handleCollision(GameObject otherObject, GameWorld gw) {
+		if (otherObject instanceof Spider) {
+			gw.get();
+		}
+		else if(otherObject instanceof Flag) {
+			gw.flagCollision(((Flag) otherObject).getSequenceNumber());
+		}
+		else if(otherObject instanceof FoodStation) {
+			this.setFoodLevel(this.getFoodLevel()+((FoodStation) otherObject).getCapacity());
+			((FoodStation) otherObject).setCapacity(0);
+		}
 	}
 }
